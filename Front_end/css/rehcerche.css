@@ -1,0 +1,15 @@
+.search-section {
+    margin: 20px;
+    text-align: center;
+  }
+  
+  .search-section input {
+    padding: 8px;
+    width: 200px;
+  }
+  
+  .search-section button {
+    padding: 8px 12px;
+    margin-left: 10px;
+  }
+  

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCO</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/inscription.css">
+    
+</head>
+
+<body>
+
+    <div id="header-placeholder"></div> <!-- Le header sera chargé ici -->
+    <script src="js/ScriptHeader.js"></script> <!-- Inclusion du JS externe -->
+    
+    
+    
+    <div class="form-container">
+        <h2>Créer un compte</h2>
+        <form action="/create_account" method="POST">
+            <label for="name">Nom complet :</label>
+            <input type="text" id="name" name="name" required><br>
+
+            <label for="email">E-mail :</label>
+            <input type="email" id="email" name="email" required><br>
+
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" name="password" required><br>
+
+            <label for="confirm_password">Confirmer le mot de passe :</label>
+            <input type="password" id="confirm_password" name="confirm_password" required><br>
+
+            <button type="submit">Créer un compte</button>
+        </form>
+        <a href="/login">Déjà un compte ? Connectez-vous</a>
+    </div>
+    
+  
+
+
+    <div id="footer-placeholder"></div> 
+    <script src="js/ScriptFooter.js"></script> 
+    
+    <script src="js/script.js"></script>
+</body>
+
+</html>

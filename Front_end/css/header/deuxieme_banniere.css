@@ -1,0 +1,53 @@
+/* Réinitialisation de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.second-banner {
+    background-color: #000000;  /* Couleur de fond */
+    color: rgb(22, 80, 15);
+    text-align: right;
+    padding: 5px 20px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    width: 80px;  /* Adjust the width */
+    height: 80px; /* Adjust the height */
+    object-fit: contain; /* Ensures the image is scaled properly */
+}
+
+nav {
+    flex-grow: 1; /* Permet à la navigation d'occuper l'espace disponible */
+    display: flex;
+    justify-content: center; /* Centre les liens */
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 20px; /* Espacement entre les éléments */
+}
+
+nav ul li {
+    display: inline;
+    /*margin: 0 20px;*/
+}
+
+nav ul li a {
+    font-size: 18px; /* Augmente la taille du texte */
+    font-weight: bold; /* Optionnel : rend le texte plus gras */
+    color: rgb(4, 88, 39);
+    text-decoration: none;
+    padding: 10px 15px; /* Ajoute de l'espace autour du texte */
+}
+
+.second-banner ul li a:hover {
+    color: #ffffff;
+}

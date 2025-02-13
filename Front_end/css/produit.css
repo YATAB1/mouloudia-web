@@ -1,0 +1,30 @@
+.produits {
+    margin: 20px;
+}
+
+.produit {
+    display: inline-block;
+    background: white;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(138, 7, 7, 0.1);
+}
+
+.produit img {
+    width: 150px;
+    height: auto;
+}
+
+button acheter {
+    background-color: #5ae038;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #14274E;
+}

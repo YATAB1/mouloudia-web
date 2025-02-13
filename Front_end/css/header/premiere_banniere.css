@@ -1,0 +1,70 @@
+/* Réinitialisation de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Bannière supérieure */
+.top-banner {
+    background-color: #18532f;  /* Couleur de fond */
+    color: white;
+    text-align: right;
+    padding: 5px 20px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.up-left-social-icons img {
+    width: 32px;  /* Adjust the width */
+    height: 32px; /* Adjust the height */
+    object-fit: contain; /* Ensures the image is scaled properly */
+}
+.up-right-social-icons img {
+    background-color: rgb(248, 250, 248);
+    color: white;
+    border: none;
+    padding: 3px;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 32px;  /* Adjust the width */
+    height: 32px; /* Adjust the height */
+    object-fit: contain; /* Ensures the image is scaled properly */
+}
+
+.header-left img {
+    width: 36px; /* Adjust size */
+    height: auto; /* Maintain proportions */
+    object-fit: contain; /* Ensures the image is scaled properly */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .top-banner {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    .main-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .social-icons img {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+
+
+.user-icons button {
+    background-color: darkgreen;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+}
