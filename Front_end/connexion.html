@@ -7,7 +7,6 @@
     <title>MCO</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/connexion.css">
-    
 </head>
 
 <body>
@@ -15,10 +14,9 @@
     <div id="header-placeholder"></div> <!-- Le header sera chargé ici -->
     <script src="js/ScriptHeader.js"></script>
 
-
-
     <div class="container">
-        <form action="traitement_connexion.php" method="POST">
+        <!-- Supprimer action et method -->
+        <form id="signin-form">
             <label for="email">Email ou Nom d'utilisateur :</label>
             <input type="text" id="email" name="email" required>
             
@@ -27,18 +25,18 @@
             
             <button type="submit">Se connecter</button>
         </form>
+        
+        <p id="message"></p> <!-- Message de feedback -->
 
         <a href="mot_de_passe_oublie.html">Mot de passe oublié ?</a>
         <p>Pas encore de compte ? <a href="inscription.html">Créez-en un ici</a></p>
     </div>
 
-
-
-    <div id="footer-placeholder"></div> 
+    <div id="footer-placeholder"></div>
     <script src="js/ScriptFooter.js"></script>
-     
-    <script src="js/script.js"></script>
+
+    <!-- Script de connexion -->
+    <script src="js/signin.js"></script>
 
 </body>
-
 </html>

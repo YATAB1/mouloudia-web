@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash
 from app.database import get_db_connection
+from flask_cors import CORS
 
 signin_bp = Blueprint('signin', __name__)
+
+CORS(signin_bp)
 
 @signin_bp.route('/signin', methods=['POST'])
 def signin():
@@ -19,10 +22,10 @@ def signin():
     cursor.execute("SELECT * FROM Client WHERE email = %s", (email,))
     user = cursor.fetchone()
 
-    if not user or not check_password_hash(user['mot_de_passe'], password):
-        return jsonify({"error": "Email ou mot de passe incorrect"}), 401
-
     cursor.close()
     connection.close()
 
-    return jsonify({"message": "Connexion réussie !"}), 200
+    if user and check_password_hash(user["mot_de_passe"], password):
+        return jsonify({"message": "Connexion réussie", "user": user["email"]}), 200
+    else:
+        return jsonify({"error": "Email ou mot de passe incorrect"}), 401
