@@ -51,4 +51,67 @@ BEGIN
 END//
 DELIMITER ;
 
+CREATE TABLE Produit (
+    id_produit INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    categorie VARCHAR(100),
+    prix DECIMAL(10, 2) NOT NULL,
+    image VARCHAR(255),
+    description TEXT
+);
+CREATE PROCEDURE ajouter_produit(
+    IN p_nom VARCHAR(100),
+    IN p_description TEXT,
+    IN p_categorie VARCHAR(50),
+    IN p_prix DECIMAL(10,2),
+    IN p_image VARCHAR(255)
+)
+
+
+ CREATE TABLE Taille (
+    id_taille INT AUTO_INCREMENT PRIMARY KEY,
+    libelle VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Stock (
+    id_stock INT AUTO_INCREMENT PRIMARY KEY,
+    id_produit INT,
+    id_taille INT,
+    quantite_dispo INT,
+
+    FOREIGN KEY (id_produit) REFERENCES Produit(id_produit),
+    FOREIGN KEY (id_taille) REFERENCES Taille(id_taille)
+);
+
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS ajouter_produit;
+CREATE PROCEDURE ajouter_produit(
+    IN p_nom VARCHAR(100),
+    IN p_description TEXT,
+    IN p_categorie VARCHAR(50),
+    IN p_prix DECIMAL(10,2),
+    IN p_image VARCHAR(255)
+)
+BEGIN
+    INSERT INTO Produit (nom, description, categorie, prix, image)
+    VALUES (p_nom, p_description, p_categorie, p_prix, p_image);
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS ajouter_stock;
+CREATE PROCEDURE ajouter_stock(
+    IN p_id_produit INT,
+    IN p_id_taille INT,
+    IN p_quantite INT
+)
+BEGIN
+    INSERT INTO Stock (id_produit, id_taille, quantite_dispo)
+    VALUES (p_id_produit, p_id_taille, p_quantite);
+END //
+DELIMITER ;
 
