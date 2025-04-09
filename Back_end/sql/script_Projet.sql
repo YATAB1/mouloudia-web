@@ -1,5 +1,8 @@
 USE boutique_db;
 
+-- ===========================
+-- TABLE CLIENT
+-- ===========================
 DROP TABLE IF EXISTS Client;
 
 CREATE TABLE Client (
@@ -51,6 +54,11 @@ BEGIN
 END//
 DELIMITER ;
 
+
+-- ===========================
+-- TABLE PRODUIT
+-- ===========================
+
 CREATE TABLE Produit (
     id_produit INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
@@ -59,6 +67,7 @@ CREATE TABLE Produit (
     image VARCHAR(255),
     description TEXT
 );
+
 CREATE PROCEDURE ajouter_produit(
     IN p_nom VARCHAR(100),
     IN p_description TEXT,
@@ -67,11 +76,18 @@ CREATE PROCEDURE ajouter_produit(
     IN p_image VARCHAR(255)
 )
 
+-- ===========================
+-- TABLE TAILLE
+-- ===========================
 
  CREATE TABLE Taille (
     id_taille INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(20) NOT NULL
 );
+
+-- ===========================
+-- TABLE STOCK
+-- ===========================
 
 CREATE TABLE Stock (
     id_stock INT AUTO_INCREMENT PRIMARY KEY,
@@ -117,12 +133,17 @@ DELIMITER ;
 
 
 
+
+
+
+
+
+
+
 -- ===========================
 -- TABLE COMMANDE
 -- ===========================
-DROP TABLE IF EXISTS Ligne_Commande;
 DROP TABLE IF EXISTS Commande;
-
 CREATE TABLE Commande (
     id_commande INT AUTO_INCREMENT PRIMARY KEY,
     id_client INT NOT NULL,
@@ -134,6 +155,7 @@ CREATE TABLE Commande (
 -- ===========================
 -- TABLE LIGNE_COMMANDE
 -- ===========================
+DROP TABLE IF EXISTS Ligne_Commande;
 CREATE TABLE Ligne_Commande (
     id_ligne INT AUTO_INCREMENT PRIMARY KEY,
     id_commande INT NOT NULL,
@@ -148,7 +170,6 @@ CREATE TABLE Ligne_Commande (
 -- TABLE PANIER
 -- ===========================
 DROP TABLE IF EXISTS Panier;
-
 CREATE TABLE Panier (
     id_panier INT AUTO_INCREMENT PRIMARY KEY,
     id_client INT NOT NULL,
@@ -159,18 +180,12 @@ CREATE TABLE Panier (
     FOREIGN KEY (id_produit) REFERENCES Produit(id_produit)
 );
 
-
 -- ===========================
 -- PROCEDURE : ajouter au panier
 -- ===========================
 DROP PROCEDURE IF EXISTS ajouter_au_panier;
 DELIMITER //
-
-CREATE PROCEDURE ajouter_au_panier(
-    IN p_id_client INT,
-    IN p_id_produit INT,
-    IN p_quantite INT
-)
+CREATE PROCEDURE ajouter_au_panier( IN p_id_client INT, IN p_id_produit INT, IN p_quantite INT)
 BEGIN
     DECLARE existe INT;
 
@@ -190,22 +205,36 @@ END;
 //
 DELIMITER ;
 
-
 -- ===========================
 -- PROCEDURE : retirer un produit du panier
 -- ===========================
 DROP PROCEDURE IF EXISTS retirer_du_panier;
 DELIMITER //
-
-CREATE PROCEDURE retirer_du_panier(
-    IN p_id_client INT,
-    IN p_id_produit INT
-)
+CREATE PROCEDURE retirer_du_panier( IN p_id_client INT, IN p_id_produit INT)
 BEGIN
     DELETE FROM Panier
     WHERE id_client = p_id_client AND id_produit = p_id_produit;
 END;
 //
+DELIMITER ;
+
+-- ===========================
+-- FONCTION : obtenir le total du panier
+-- ===========================
+DROP FUNCTION IF EXISTS obtenir_total_panier(p_client_id INT)
+DELIMITER //
+CREATE FUNCTION obtenir_total_panier(p_client_id INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total DECIMAL(10,2);
+    SELECT SUM(p.quantite * pr.prix) INTO total
+    FROM Panier p
+    JOIN Produit pr ON p.id_produit = pr.id_produit
+    WHERE p.id_client = p_client_id;
+
+    RETURN IFNULL(total, 0);
+END //
 DELIMITER ;
 
 
@@ -214,10 +243,7 @@ DELIMITER ;
 -- ===========================
 DROP PROCEDURE IF EXISTS vider_panier;
 DELIMITER //
-
-CREATE PROCEDURE vider_panier(
-    IN p_id_client INT
-)
+CREATE PROCEDURE vider_panier(IN p_id_client INT)
 BEGIN
     DELETE FROM Panier
     WHERE id_client = p_id_client;
@@ -225,16 +251,12 @@ END;
 //
 DELIMITER ;
 
-
 -- ===========================
 -- PROCEDURE : valider panier => créer commande
 -- ===========================
 DROP PROCEDURE IF EXISTS valider_panier;
 DELIMITER //
-
-CREATE PROCEDURE valider_panier(
-    IN p_id_client INT
-)
+CREATE PROCEDURE valider_panier(IN p_id_client INT)
 BEGIN
     DECLARE p_id_commande INT;
 
@@ -259,17 +281,12 @@ END;
 //
 DELIMITER ;
 
-
 -- ===========================
 -- FONCTION : produit dans le panier
 -- ===========================
 DROP FUNCTION IF EXISTS produitDansPanier;
 DELIMITER //
-
-CREATE FUNCTION produitDansPanier(
-    p_id_client INT,
-    p_id_produit INT
-)
+CREATE FUNCTION produitDansPanier(p_id_client INT,p_id_produit INT)
 RETURNS BOOLEAN
 DETERMINISTIC
 BEGIN
@@ -283,3 +300,68 @@ END;
 //
 DELIMITER ;
 
+-- ===========================
+-- PROCEDURE : afficher les commandes d’un client
+-- ===========================
+DROP PROCEDURE IF EXISTS afficher_commandes;
+DELIMITER //
+CREATE PROCEDURE afficher_commandes(IN p_id_client INT)
+BEGIN
+    SELECT *
+    FROM Commande
+    WHERE id_client = p_id_client
+    ORDER BY date_commande DESC;
+END;
+//
+DELIMITER ;
+
+-- ===========================
+-- PROCEDURE : afficher les détails d’une commande
+-- ===========================
+DROP PROCEDURE IF EXISTS afficher_details_commande;
+DELIMITER //
+CREATE PROCEDURE afficher_details_commande(IN p_id_commande INT)
+BEGIN
+    SELECT
+        LC.id_ligne,
+        P.nom AS nom_produit,
+        P.description,
+        LC.quantite,
+        LC.prix_unitaire,
+        (LC.quantite * LC.prix_unitaire) AS total_ligne
+    FROM Ligne_Commande LC
+    JOIN Produit P ON LC.id_produit = P.id_produit
+    WHERE LC.id_commande = p_id_commande;
+END;
+//
+DELIMITER ;
+
+
+-- ===========================
+-- PROCEDURE : annuler une commande
+-- ===========================
+DROP PROCEDURE IF EXISTS annuler_commande;
+DELIMITER //
+CREATE PROCEDURE annuler_commande(IN p_id_commande INT)
+BEGIN
+    UPDATE Commande
+    SET statut = 'en traitement'
+    WHERE id_commande = p_id_commande AND statut <> 'expédiée';
+END;
+//
+DELIMITER ;
+
+
+-- ===========================
+-- PROCEDURE : mettre à jour le stock d’un produit
+-- ===========================
+DROP PROCEDURE IF EXISTS mettre_a_jour_stock;
+DELIMITER //
+CREATE PROCEDURE mettre_a_jour_stock(IN p_id_produit INT, IN p_quantite INT)
+BEGIN
+    UPDATE Produit
+    SET stock = stock - p_quantite
+    WHERE id_produit = p_id_produit;
+END;
+//
+DELIMITER ;
