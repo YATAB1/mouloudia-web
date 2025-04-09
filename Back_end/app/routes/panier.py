@@ -47,3 +47,26 @@ def retirer_du_panier():
     db.commit()
 
     return redirect('/panier')
+
+
+
+@panier_bp.route('/panier/valider', methods=['POST'])
+def valider_panier():
+    id_client = session.get('id_client')
+
+    if not id_client:
+        return redirect('/connexion')  # ou retourner une erreur si besoin
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.callproc('valider_panier', (id_client,))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return f"Erreur lors de la validation du panier : {e}", 500
+    finally:
+        cursor.close()
+
+    return redirect('/commande/confirmation')  # Redirige vers une page de confirmation
