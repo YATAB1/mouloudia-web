@@ -115,3 +115,171 @@ BEGIN
 END //
 DELIMITER ;
 
+
+
+-- ===========================
+-- TABLE COMMANDE
+-- ===========================
+DROP TABLE IF EXISTS Ligne_Commande;
+DROP TABLE IF EXISTS Commande;
+
+CREATE TABLE Commande (
+    id_commande INT AUTO_INCREMENT PRIMARY KEY,
+    id_client INT NOT NULL,
+    date_commande DATE DEFAULT (CURDATE()),
+    statut ENUM('en traitement', 'expédiée', 'livrée') DEFAULT 'en traitement',
+    FOREIGN KEY (id_client) REFERENCES Client(id_client)
+);
+
+-- ===========================
+-- TABLE LIGNE_COMMANDE
+-- ===========================
+CREATE TABLE Ligne_Commande (
+    id_ligne INT AUTO_INCREMENT PRIMARY KEY,
+    id_commande INT NOT NULL,
+    id_produit INT NOT NULL,
+    quantite INT NOT NULL CHECK (quantite > 0),
+    prix_unitaire DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (id_commande) REFERENCES Commande(id_commande),
+    FOREIGN KEY (id_produit) REFERENCES Produit(id_produit)
+);
+
+-- ===========================
+-- TABLE PANIER
+-- ===========================
+DROP TABLE IF EXISTS Panier;
+
+CREATE TABLE Panier (
+    id_panier INT AUTO_INCREMENT PRIMARY KEY,
+    id_client INT NOT NULL,
+    id_produit INT NOT NULL,
+    quantite INT NOT NULL CHECK (quantite > 0),
+    date_ajout DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_client) REFERENCES Client(id_client),
+    FOREIGN KEY (id_produit) REFERENCES Produit(id_produit)
+);
+
+
+-- ===========================
+-- PROCEDURE : ajouter au panier
+-- ===========================
+DROP PROCEDURE IF EXISTS ajouter_au_panier;
+DELIMITER //
+
+CREATE PROCEDURE ajouter_au_panier(
+    IN p_id_client INT,
+    IN p_id_produit INT,
+    IN p_quantite INT
+)
+BEGIN
+    DECLARE existe INT;
+
+    SELECT COUNT(*) INTO existe
+    FROM Panier
+    WHERE id_client = p_id_client AND id_produit = p_id_produit;
+
+    IF existe = 0 THEN
+        INSERT INTO Panier (id_client, id_produit, quantite)
+        VALUES (p_id_client, p_id_produit, p_quantite);
+    ELSE
+        UPDATE Panier
+        SET quantite = quantite + p_quantite
+        WHERE id_client = p_id_client AND id_produit = p_id_produit;
+    END IF;
+END;
+//
+DELIMITER ;
+
+
+-- ===========================
+-- PROCEDURE : retirer un produit du panier
+-- ===========================
+DROP PROCEDURE IF EXISTS retirer_du_panier;
+DELIMITER //
+
+CREATE PROCEDURE retirer_du_panier(
+    IN p_id_client INT,
+    IN p_id_produit INT
+)
+BEGIN
+    DELETE FROM Panier
+    WHERE id_client = p_id_client AND id_produit = p_id_produit;
+END;
+//
+DELIMITER ;
+
+
+-- ===========================
+-- PROCEDURE : vider le panier
+-- ===========================
+DROP PROCEDURE IF EXISTS vider_panier;
+DELIMITER //
+
+CREATE PROCEDURE vider_panier(
+    IN p_id_client INT
+)
+BEGIN
+    DELETE FROM Panier
+    WHERE id_client = p_id_client;
+END;
+//
+DELIMITER ;
+
+
+-- ===========================
+-- PROCEDURE : valider panier => créer commande
+-- ===========================
+DROP PROCEDURE IF EXISTS valider_panier;
+DELIMITER //
+
+CREATE PROCEDURE valider_panier(
+    IN p_id_client INT
+)
+BEGIN
+    DECLARE p_id_commande INT;
+
+    -- Créer une commande
+    INSERT INTO Commande(id_client) VALUES (p_id_client);
+    SET p_id_commande = LAST_INSERT_ID();
+
+    -- Ajouter les lignes de commande depuis le panier
+    INSERT INTO Ligne_Commande (id_commande, id_produit, quantite, prix_unitaire)
+    SELECT
+        p_id_commande,
+        P.id_produit,
+        P.quantite,
+        Pr.prix
+    FROM Panier P
+    JOIN Produit Pr ON P.id_produit = Pr.id_produit
+    WHERE P.id_client = p_id_client;
+
+    -- Vider le panier après commande
+    DELETE FROM Panier WHERE id_client = p_id_client;
+END;
+//
+DELIMITER ;
+
+
+-- ===========================
+-- FONCTION : produit dans le panier
+-- ===========================
+DROP FUNCTION IF EXISTS produitDansPanier;
+DELIMITER //
+
+CREATE FUNCTION produitDansPanier(
+    p_id_client INT,
+    p_id_produit INT
+)
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE existe INT;
+    SELECT COUNT(*) INTO existe
+    FROM Panier
+    WHERE id_client = p_id_client AND id_produit = p_id_produit;
+
+    RETURN (existe > 0);
+END;
+//
+DELIMITER ;
+

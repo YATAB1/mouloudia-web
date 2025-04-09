@@ -4,6 +4,8 @@ from app.routes.signup import signup_bp
 from app.routes.signin import signin_bp
 from app.routes.produit import produit_bp
 from app.routes.stock import stock_bp
+from app.routes.panier import panier_bp
+from app.routes.commande import commande_bp
 from app.database import get_db_connection
 
 def create_app():
@@ -15,6 +17,9 @@ def create_app():
     app.register_blueprint(signin_bp, url_prefix='/users')
     app.register_blueprint(produit_bp, url_prefix='/produits')
     app.register_blueprint(stock_bp, url_prefix='/stock')
+    app.register_blueprint(panier_bp, url_prefix='/panier')
+    app.register_blueprint(commande_bp, url_prefix='/commande')
+
     
     @app.route('/Front_end/<path:filename>')
     def serve_static(filename):
